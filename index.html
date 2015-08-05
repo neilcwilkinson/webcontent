@@ -1,0 +1,108 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Betfolio</title>
+	<link rel="shortcut icon" href="../favicon.ico">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+	<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+	<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+	<script>
+		$( document ).on( "pagecreate", function() {
+			$( "body > [data-role='panel']" ).panel();
+			$( "body > [data-role='panel'] [data-role='listview']" ).listview();
+		});
+		$( document ).one( "pageshow", function() {
+			$( "body > [data-role='header']" ).toolbar();
+			$( "body > [data-role='header'] [data-role='navbar']" ).navbar();
+		});
+	</script>
+	<script>
+      $(function() {
+        var ws = new WebSocket("ws://104.197.95.193:8080/rates");
+        ws.onopen = function(e) {
+          $("#latest-rate").text("Welcome");
+        };
+        ws.onclose = function(e) {
+          $("#latest-rate").text("Dangit");
+        };
+        ws.onmessage = function(e) {
+          rateCount += 1;
+          $("#latest-rate").text(event.data);
+          $("#rate-count").text(rateCount);
+        };
+
+        var $ul = $('#msg-list');
+        $('#sendBtn').click(function(){
+          var data = $('#name').val();
+          ws.send(data);
+          console.log("送信メッセージ:" + data);
+          $('<li>').text(data).appendTo($ul);
+        });
+      });
+      var rateCount = 0;
+		</script>
+</head>
+<body>
+	<div data-role="header" data-position="fixed" data-theme="a">
+		<h1>Betfolio</h1>
+		<a href="#outside" data-icon="bars" data-iconpos="notext">Menu</a>
+		<div data-role="navbar">
+			<ul>
+				<li><a href="index.html">Page A</a></li>
+				<li><a href="page-b.html">Page B</a></li>
+				<li><a href="page-c.html">Page C</a></li>
+			</ul>
+		</div>
+	</div><!-- /header -->
+
+	<div data-role="page" id="a">
+
+		<div role="main" class="ui-content">
+
+		<h2>Index</h2>
+
+		<p>Content</p>
+			<p id="rate-count">None</p>
+      		<p id="latest-rate">None</p>
+			<p>The left panel and fixed header are outside the page. The right panel and fixed footer are inside the pages.</p>
+
+			<a href="#inside-a" class="ui-btn ui-shadow ui-corner-all ui-btn-inline">Open right panel</a>
+
+		</div><!-- /content -->
+
+		<div data-role="panel" id="inside-a" data-position="right" data-display="overlay" data-theme="b">
+			<ul data-role="listview">
+				<li data-icon="back"><a href="#" data-rel="close">Close</a></li>
+				<li>Internal panel</li>
+				<li>Page A</li>
+				<li>Overlay</li>
+			</ul>
+		</div>
+
+		<div data-role="footer" data-position="fixed">
+			<div data-role="navbar">
+				<ul>
+					<li><a href="index.html">Page A</a></li>
+					<li><a href="page-b.html">Page B</a></li>
+					<li><a href="page-c.html">Page C</a></li>
+				</ul>
+			</div>
+		</div><!-- /header -->
+
+	</div><!-- /page -->
+
+	<div data-role="panel" id="outside" data-theme="b">
+		<ul data-role="listview">
+			<li data-icon="back"><a href="#" data-rel="close">Close</a></li>
+			<li>External panel</li>
+			<li>Page A</li>
+			<li>Reveal</li>
+		</ul>
+	</div>
+
+</body>
+</html>
+
