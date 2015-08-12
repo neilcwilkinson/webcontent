@@ -1,6 +1,7 @@
-var ws = new WebSocket("ws://104.197.95.193:8080/rates");
+// var ws = new WebSocket("ws://104.197.95.193:8080/rates");
 var mobile_device = false;
 var window_focus = true;
+var connection_count = 0;
 
 var isMobile = {
     Android: function() {
@@ -36,6 +37,8 @@ function BetFolioApp() {
        //alert("WebSocket is supported by your Browser!");
     }
 
+    $('#user-agent').text(navigator.userAgent);
+    
     $(window).focus(function() {
         window_focus = true;
         $("#rate-count").text('Got Focus');
@@ -45,8 +48,8 @@ function BetFolioApp() {
         $("#rate-count").text('Lost Focus');
     });
 
-    $("#slip").click(function(){
-        $('#popupBettingSlip').popup("open");
+     $("#slip").click(function(){
+        $('#popupBettingSlip').popup({ positionTo: 'origin' }).popup('open');
     });
 
    $('a[href="#firstpage"]').click(function(){
@@ -69,12 +72,21 @@ function BetFolioApp() {
 }
 
 BetFolioApp.prototype.connect = function () {
-    // var ws = new WebSocket("ws://104.197.95.193:8080/rates");
+
+    var ws = new WebSocket("ws://localhost:8080/rates");
     ws.onopen = function(e) {
-        $("#latest-rate").text("Connected");
+        connection_count += 1;
+        $("#connection-status").text("Connected");
+        $("#connection-count").text(connection_count);
     };
-    ws.onclose = function(e) {
-        $("#latest-rate").text("Disconnected");
+    ws.onclose = function(){
+        $("#connection-status").text("Disconnected");
+        //try to reconnect in 5 seconds
+        setTimeout(function(){
+            if ((mobile_device == false) || (window_focus == true && mobile_device == true)) {            
+                BetFolioApp.prototype.connect();
+            } 
+        }, 5000);
     };
     ws.onmessage = function(e) {
         rateCount += 1;
@@ -84,13 +96,28 @@ BetFolioApp.prototype.connect = function () {
         } 
     };
 
-    var $ul = $('#msg-list');
-    $('#sendBtn').click(function(){
-      var data = $('#name').val();
-      ws.send(data);
-      console.log("送信メッセージ:" + data);
-      $('<li>').text(data).appendTo($ul);
-    });
+    // var ws = new WebSocket("ws://104.197.95.193:8080/rates");
+    // ws.onopen = function(e) {
+    //     $("#latest-rate").text("Connected");
+    // };
+    // ws.onclose = function(e) {
+    //     $("#latest-rate").text("Disconnected");
+    // };
+    // ws.onmessage = function(e) {
+    //     rateCount += 1;
+    //     //"#latest-rate").text(event.data);
+    //     if ((mobile_device == false) || (window_focus == true && mobile_device == true)) {            
+    //         $("#rate-count").text(rateCount);
+    //     } 
+    // };
+
+    // var $ul = $('#msg-list');
+    // $('#sendBtn').click(function(){
+    //   var data = $('#name').val();
+    //   ws.send(data);
+    //   console.log("送信メッセージ:" + data);
+    //   $('<li>').text(data).appendTo($ul);
+    // });
 }
 
 BetFolioApp.prototype.loadSport = function(sport) {
