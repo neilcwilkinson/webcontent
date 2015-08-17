@@ -73,7 +73,7 @@ function BetFolioApp() {
 
 BetFolioApp.prototype.connect = function () {
 
-    var ws = new WebSocket("ws://localhost:8080/rates");
+    var ws = new WebSocket("ws://104.197.95.193:8080/rates");
     ws.onopen = function(e) {
         connection_count += 1;
         $("#connection-status").text("Connected");
